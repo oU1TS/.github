@@ -1,4 +1,4 @@
-# 🎓 oU1TS - Online UITS Support (<i>Unofficial</i>)
+# 🎓 oU1TS - Online UITS Support <span style="font-size: 0.5em;">*( Unofficial )*</span>
 
 Welcome to **oU1TS**, the <u>unofficial</u> GitHub organization for building and maintaining an **online support center** for the students of **UITS**.
 
