@@ -26,7 +26,7 @@ Below are some of our core projects (in progress or planned):
 | `uits-resources` | Centralized academic materials sorted by department and semester (PDFs, notes, slides). |
 | `uits-scheduler` | A web-based dashboard for planning and maintaining academic tasks, notices, and reminders. |
 | `course-materials` | Repositories containing course materials (Lab works, projects, codes). |
-| `guides-and-tutorials` | Step-by-step tutorials and how-to guides (coding, Git, exam prep, etc.). |
+| `guides-and-tutorials` | Step-by-step tutorials and how-to guides (coding, Git, exam prep, etc.). See the [wiki section of .github repo](https://github.com/oU1TS/.github/wiki) for guides regarding this Organization. |
 
 ---
 
