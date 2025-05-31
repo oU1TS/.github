@@ -19,6 +19,13 @@
             min-height: 100vh;
         }
 
+        /* Remove after-click highlight for mobile screens */
+        body, .projects-track-overlay-left, .projects-track-overlay-right {
+            -webkit-tap-highlight-color: transparent; /* For iOS */
+            touch-action: manipulation; /* For other mobile browsers */
+        }
+
+
         .stars {
             position: fixed;
             top: 0;
@@ -134,7 +141,6 @@
             margin-right: -50vw; /* Pull it right by half viewport width */
             padding: 0; /* Ensure no internal padding interferes */
             overflow: hidden; /* Hide anything that goes beyond viewport width */
-            /* Added min-height to ensure the overlay can be clicked */
             min-height: 400px; /* Same as projects-carousel height */
             display: flex;
             flex-direction: column;
@@ -143,10 +149,11 @@
         }
 
         .projects-carousel {
-            position: relative;
+            position: relative; /* Crucial for absolute positioning of indicator */
             padding: 0;
             height: 400px;
             display: flex;
+            flex-direction: column; /* Changed to column to stack track and indicator */
             align-items: center;
             justify-content: center;
             width: 100%; /* Now takes 100% of the 100vw parent */
@@ -159,65 +166,82 @@
             max-width: 900px; /* Set a reasonable max-width for the track itself */
             height: 350px;
             perspective: 1000px;
-            /* Removed pointer-events: auto; from track as overlays will handle clicks */
             display: flex;
             justify-content: center;
             align-items: center;
         }
         
-        /* Styles for click/hover overlays - now direct children of primary-projects */
+        /* Styles for click/hover overlays - direct children of primary-projects */
         .projects-track-overlay-left,
         .projects-track-overlay-right {
             position: absolute;
             top: 0;
             bottom: 0;
-            /* Calculate width based on viewport width, ensuring it doesn't overlap the active card */
-            /* For example, if active card is 350px, and track max-width is 900px, 
-               there's (900-350)/2 = 275px on each side of the track.
-               We want these overlays to cover that plus extend to the viewport edge. */
-            width: calc(50vw - 450px); /* 50vw minus half of projects-track max-width */
-            min-width: 10%; /* Ensure a minimum clickable width on small screens */
+            /* Width calculation: covers from screen edge up to the side of the active card */
+            /* Assuming active card is 350px. Half of that is 175px. */
+            /* Half of max-width of projects-track is 450px. */
+            /* So the gap from track edge to card edge is 450 - 175 = 275px. */
+            /* We need to span from 0 to (viewport_center - 175px) */
+            /* For the right side, it's (viewport_center + 175px) to 100vw */
+            /* A simple percentage based on viewport width, adjusted for responsiveness */
+            width: calc(50vw - 175px); /* Half viewport width - half active card width */
             z-index: 10; /* Make sure overlays are on top to catch clicks */
             transition: background-color 0.3s ease;
             cursor: pointer;
-            /* Use pointer-events: all to ensure they are clickable */
             pointer-events: all; 
         }
 
         .projects-track-overlay-left {
             left: 0;
-            background: linear-gradient(to right, rgba(0, 212, 255, 0.05), transparent);
+            background: transparent; /* No initial background */
         }
 
         .projects-track-overlay-right {
             right: 0;
-            background: linear-gradient(to left, rgba(0, 212, 255, 0.05), transparent);
+            background: transparent; /* No initial background */
         }
 
+        /* Remove hover background colors for left/right overlays */
         .projects-track-overlay-left:hover {
-            background: linear-gradient(to right, rgba(0, 212, 255, 0.25), transparent);
+            background: transparent; /* No hover background */
         }
 
         .projects-track-overlay-right:hover {
-            background: linear-gradient(to left, rgba(0, 212, 255, 0.25), transparent);
+            background: transparent; /* No hover background */
         }
 
         /* Adjustments for when viewport is narrower than projects-track max-width */
         @media (max-width: 900px) {
             .projects-track-overlay-left,
             .projects-track-overlay-right {
-                /* When the track is narrower than max-width, adjust overlay width
-                   to cover the space outside the active card's visually active area.
-                   Let's say 25% of viewport on each side. */
-                width: 25%;
-                min-width: unset; /* Remove min-width to avoid overlap issues */
+                /* On smaller screens, the 'track' itself will shrink.
+                   We still want the overlays to cover the side areas.
+                   Let's use a percentage relative to the shrinking viewport */
+                width: calc(50% - (350px / 2)); /* 50% of parent minus half card width */
+                min-width: 10%; /* Ensure a minimum clickable area */
             }
+        }
+        /* Further refinement for very wide screens, prevent overlays from becoming too wide */
+        @media (min-width: 1200px) {
+            .projects-track-overlay-left,
+            .projects-track-overlay-right {
+                width: calc(50vw - 200px); /* This calculation means it stops at the edge of the max-width:900px track */
+            }
+        }
+        /* Ensure cursor change is applied as the only visual hover effect */
+        .projects-track-overlay-left,
+        .projects-track-overlay-right {
+            cursor: w-resize; /* For left */
+        }
+        .projects-track-overlay-right {
+            cursor: e-resize; /* For right */
         }
 
 
+
         .stack-indicator {
-            position: absolute;
-            bottom: -50px;
+            position: absolute; /* Changed to absolute */
+            bottom: 5px; /* Adjusted to 5px to move it further down */
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -336,15 +360,15 @@
             padding: 30px;
             text-align: center;
             transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
-            cursor: pointer;
             transform-style: preserve-3d;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            pointer-events: none; /* Cards generally not clickable except for specific links */
         }
-
+        
         .project-card.active {
             z-index: 4;
             transform: translateX(-50%) translateZ(0px) rotateY(0deg); 
@@ -352,7 +376,13 @@
             background: rgba(0, 0, 0, 0.4);
             border: 2px solid #00d4ff;
             box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
+            pointer-events: auto; /* Active card and its children can receive clicks */
         }
+        /* Ensure the project link within the active card is clickable */
+        .project-card.active .project-link {
+            pointer-events: auto;
+        }
+
 
         .project-card.next {
             z-index: 3;
@@ -381,7 +411,6 @@
         }
         
         /* Ensure no hover effects on non-active project cards */
-        /* Re-apply the default position and style on hover for non-active cards */
         .project-card:not(.active) {
             --card-offset: 0px; /* Default offset for non-active cards, overridden by next/prev classes */
             --card-rotation: 0deg; /* Default rotation */
@@ -389,11 +418,7 @@
         .project-card.next { --card-offset: 400px; --card-rotation: -15deg; }
         .project-card.prev { --card-offset: -400px; --card-rotation: 15deg; }
 
-        /* The key change: no hover effect on non-active cards */
         .project-card:not(.active):hover {
-            /* This rule ensures that when you hover over a non-active card,
-               its appearance remains exactly as defined by its .next, .prev, or .hidden class.
-               We explicitly set properties back to their non-hover state values. */
             transform: translateX(-50%) translateZ(-50px) translateX(var(--card-offset)) rotateY(var(--card-rotation));
             background: rgba(255, 255, 255, 0.05);
             border-color: rgba(255, 255, 255, 0.1);
@@ -470,7 +495,14 @@
             z-index: 2;
             font-size: 0.9rem;
             flex-shrink: 0;
+            pointer-events: auto; /* Ensure link is clickable */
         }
+        /* Ensure the project link can be clicked on mobile too,
+           as touch-action on body might affect it. */
+        .project-link:active {
+            background: linear-gradient(45deg, #007bb6, #00b0e0); /* Slightly darker on active tap */
+        }
+
 
         .project-link:hover {
             background: linear-gradient(45deg, #0099cc, #00d4ff);
@@ -565,7 +597,7 @@
             }
             
             .stack-indicator {
-                bottom: -40px;
+                bottom: -10px; /* Adjusted for smaller mobile height to be clearly visible */
             }
             
             .repos-grid {
@@ -580,8 +612,9 @@
             /* Responsive adjustments for edge hover areas */
             .projects-track-overlay-left,
             .projects-track-overlay-right {
-                width: 30%; /* Larger touch area for mobile */
-                min-width: unset; /* Ensure this is unset for mobile */
+                /* On mobile, covers up to the card's edge, using half of mobile card width */
+                width: calc(50% - (300px / 2)); 
+                min-width: unset;
             }
         }
 
@@ -616,7 +649,7 @@
                 <h2 class="section-title">Primary Projects</h2>
                 <div class="projects-carousel">
                     <div class="projects-track" id="projectsTrack">
-                        <div class="project-card active" data-index="0" onclick="window.open('https://ouits-res.netlify.app/', '_blank')">
+                        <div class="project-card active" data-index="0">
                             <div class="project-icon">R</div>
                             <h2 class="project-title">Resources</h2>
                             <p class="project-description">Comprehensive resource hub providing essential tools, documentation, and materials for development projects.</p>
@@ -630,7 +663,7 @@
                             </a>
                         </div>
 
-                        <div class="project-card next" data-index="1" onclick="window.open('https://ouits-schedule.netlify.app/', '_blank')">
+                        <div class="project-card next" data-index="1">
                             <div class="project-icon">S</div>
                             <h2 class="project-title">Schedule</h2>
                             <p class="project-description">Advanced scheduling platform for managing events, appointments, and time-based activities with intuitive interfaces.</p>
@@ -644,7 +677,7 @@
                             </a>
                         </div>
 
-                        <div class="project-card hidden" data-index="2" onclick="window.open('https://ouits-analytics.netlify.app/', '_blank')">
+                        <div class="project-card hidden" data-index="2">
                             <div class="project-icon">A</div>
                             <h2 class="project-title">Analytics</h2>
                             <p class="project-description">Powerful analytics dashboard for tracking performance metrics, user behavior, and business intelligence insights.</p>
@@ -658,7 +691,7 @@
                             </a>
                         </div>
 
-                        <div class="project-card hidden" data-index="3" onclick="window.open('https://ouits-portfolio.netlify.app/', '_blank')">
+                        <div class="project-card hidden" data-index="3">
                             <div class="project-icon">P</div>
                             <h2 class="project-title">Portfolio</h2>
                             <p class="project-description">Showcase portfolio highlighting our best work, case studies, and creative projects with stunning visual presentations.</p>
@@ -780,8 +813,8 @@
         const dots = document.querySelectorAll('.stack-dot');
         const totalCards = cards.length;
         const projectsTrack = document.getElementById('projectsTrack');
-        const overlayLeft = document.querySelector('.projects-track-overlay-left'); // Select by class, not within projectsTrack
-        const overlayRight = document.querySelector('.projects-track-overlay-right'); // Select by class, not within projectsTrack
+        const overlayLeft = document.querySelector('.projects-track-overlay-left');
+        const overlayRight = document.querySelector('.projects-track-overlay-right');
 
 
         function updateCardPositions() {
@@ -820,8 +853,6 @@
             updateCardPositions();
         }
 
-        // Removed addCardEffects() as hover is now pure CSS for cards and overlays handle click zones
-
         // Initialize carousel
         function initCarousel() {
             // Click listeners for the new overlay divs
@@ -842,15 +873,23 @@
                 dot.addEventListener('click', () => goToSlide(index));
             });
             
-            // Touch/swipe support for mobile
+            // Touch/swipe support for mobile (Still on projectsTrack for swiping the cards themselves)
             let startX = 0;
             let endX = 0;
             
             projectsTrack.addEventListener('touchstart', (e) => {
+                // Allow clicking project link within the active card without triggering swipe
+                if (e.target.closest('.project-link')) {
+                    return;
+                }
                 startX = e.touches[0].clientX;
             });
             
             projectsTrack.addEventListener('touchend', (e) => {
+                // Allow clicking project link within the active card without triggering swipe
+                if (e.target.closest('.project-link')) {
+                    return;
+                }
                 endX = e.changedTouches[0].clientX;
                 handleSwipe();
             });
