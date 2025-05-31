@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>oU1TS - Digital Innovation Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00d4ff, #ff00ff, #ffff00);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            margin-top: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .github-link:hover {
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .projects-section {
+            width: 100%;
+            margin-top: 40px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.3s forwards;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #00d4ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .primary-projects {
+            position: relative;
+            margin-bottom: 80px;
+            width: 100%; /* Ensure primary-projects takes full width */
+        }
+
+        .projects-carousel {
+            position: relative;
+            padding: 0;
+            height: 400px;
+            display: flex; /* Use flexbox to center content */
+            align-items: center;
+            justify-content: center; /* Center the projects-track horizontally */
+            width: 100%;
+            overflow: hidden; /* Hide overflow from cards pushed far out */
+        }
+
+        .projects-track {
+            position: relative;
+            width: 350px; /* Base width for the active card */
+            height: 350px;
+            perspective: 1000px;
+            pointer-events: auto;
+            flex-shrink: 0; /* Prevent track from shrinking */
+            /* Removed max-width to allow more flexibility for card positioning */
+            /* Set a larger initial width to accommodate widely spaced cards,
+               but still relative to the active card's size */
+            width: calc(350px + 2 * 300px); /* Active card width + 2x (translateX amount for prev/next) */
+            /* Or use a fixed large width and center it with flexbox on .projects-carousel */
+        }
+        
+        /* New styles for hover areas */
+        .projects-track::before,
+        .projects-track::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 20%; /* Define the width of the hoverable edge area */
+            z-index: 5; /* Above cards, below active card */
+            transition: background-color 0.3s ease;
+            pointer-events: auto; /* Allow hover and click events */
+            cursor: pointer; /* Indicate it's clickable */
+        }
+
+        .projects-track::before {
+            left: 0;
+            background: linear-gradient(to right, rgba(0, 212, 255, 0.05), transparent);
+        }
+
+        .projects-track::after {
+            right: 0;
+            background: linear-gradient(to left, rgba(0, 212, 255, 0.05), transparent);
+        }
+
+        .projects-track::before:hover {
+            background: linear-gradient(to right, rgba(0, 212, 255, 0.25), transparent);
+        }
+
+        .projects-track::after:hover {
+            background: linear-gradient(to left, rgba(0, 212, 255, 0.25), transparent);
+        }
+
+        .stack-indicator {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+
+        .stack-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .stack-dot.active {
+            background: #00d4ff;
+            transform: scale(1.2);
+        }
+
+        .other-repos {
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.6s forwards;
+        }
+
+        .repos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .repo-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .repo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .repo-card:hover::before {
+            left: 100%;
+        }
+
+        .repo-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .repo-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(255, 0, 255, 0.3));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        .repo-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        .repo-description {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            position: relative;
+            z-index: 2;
+        }
+
+        .project-card {
+            position: absolute;
+            top: 0;
+            /* Adjust left positioning to be relative to the track's center */
+            left: 50%; 
+            transform-origin: center center; /* Ensure transformations are from the center */
+            transform: translateX(-50%) translateZ(0px) rotateY(0deg); /* Initial centered position */
+
+            width: 350px;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.05); /* Default background for non-active cards */
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            cursor: pointer;
+            transform-style: preserve-3d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .project-card.active {
+            z-index: 4;
+            transform: translateX(-50%) translateZ(0px) rotateY(0deg); /* Explicitly centered */
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.4); /* Darker background for active card */
+            border: 2px solid #00d4ff; /* Stronger, contrasting border */
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4); /* More prominent shadow */
+        }
+
+        .project-card.next {
+            z-index: 3;
+            /* Increased translateX to push it far to the right, relative to its center */
+            transform: translateX(-50%) translateZ(-50px) translateX(300px) rotateY(-15deg); 
+            opacity: 0.7; /* Slightly less opaque for better distinction */
+        }
+
+        .project-card.prev {
+            z-index: 2;
+            /* Increased translateX to push it far to the left, relative to its center */
+            transform: translateX(-50%) translateZ(-50px) translateX(-300px) rotateY(15deg); 
+            opacity: 0.7; /* Slightly less opaque for better distinction */
+        }
+
+        .project-card.hidden {
+            z-index: 1;
+            /* Push hidden cards even further out and scale them down */
+            transform: translateX(-50%) translateZ(-150px) scale(0.6);
+            opacity: 0.0; /* Fully hidden */
+            pointer-events: none; /* Prevent interaction with hidden cards */
+        }
+
+        /* Hover effect for active card (still strong) */
+        .project-card:hover.active {
+            transform: translateX(-50%) translateZ(10px) rotateY(0deg) scale(1.02);
+            border-color: rgba(0, 212, 255, 0.8); /* Stronger border on active hover */
+            box-shadow: 0 25px 50px rgba(0, 212, 255, 0.3); /* Enhanced shadow on active hover */
+        }
+
+        /* Removed hover for non-active project cards - no styles here */
+        .project-card:not(.active):hover {
+            /* Keep original styles for non-active cards on hover from JS,
+               or apply subtle ones if preferred, but not 'popping' */
+            /* If we want NO visual change except cursor for inactive cards on hover,
+               then these can be completely empty or removed.
+               The JavaScript `addCardEffects` function handles dynamic styles. */
+            cursor: pointer; /* Keep cursor pointer to indicate clickability */
+        }
+
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+            z-index: 1;
+        }
+
+        .project-card:hover::before {
+            left: 100%;
+        }
+
+        .project-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #00d4ff, #ff00ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .project-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        .project-description {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            font-size: 0.95rem;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .project-link:hover {
+            background: linear-gradient(45deg, #0099cc, #00d4ff);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(45deg, rgba(0, 212, 255, 0.1), rgba(255, 0, 255, 0.1));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .tagline {
+                font-size: 1.2rem;
+            }
+            
+            .projects-carousel {
+                padding: 0 20px; /* Re-introduce padding for smaller screens if cards are too wide */
+                height: 350px;
+            }
+            
+            .projects-track {
+                width: 300px; /* Smaller base width for mobile */
+                height: 300px;
+            }
+            
+            .project-card {
+                width: 300px;
+                height: 300px;
+                padding: 25px;
+            }
+            
+            .project-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            
+            .project-title {
+                font-size: 1.4rem;
+            }
+            
+            .project-description {
+                font-size: 0.9rem;
+            }
+            
+            .project-link {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+            
+            .stack-indicator {
+                bottom: -40px;
+            }
+            
+            .repos-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .repo-card {
+                padding: 20px 15px;
+            }
+
+            /* Responsive adjustments for edge hover areas */
+            .projects-track::before,
+            .projects-track::after {
+                width: 30%; /* Larger touch area for mobile */
+            }
+        }
+
+        @media (hover: none) {
+            /* Remove hover effects on touch devices for the track edges */
+            .projects-track::before,
+            .projects-track::after {
+                background: transparent; /* No hover effect on touch */
+                cursor: default;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="floating-elements"></div>
+    
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">oU1TS</h1>
+            <p class="tagline">Digital Innovation Hub</p>
+            <a href="https://github.com/oU1TS" class="github-link" target="_blank">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                View on GitHub
+            </a>
+        </header>
+
+        <div class="projects-section">
+            <div class="primary-projects">
+                <h2 class="section-title">Primary Projects</h2>
+                <div class="projects-carousel">
+                    <div class="projects-track" id="projectsTrack">
+                        <div class="project-card active" data-index="0" onclick="window.open('https://ouits-res.netlify.app/', '_blank')">
+                            <div class="project-icon">R</div>
+                            <h2 class="project-title">Resources</h2>
+                            <p class="project-description">Comprehensive resource hub providing essential tools, documentation, and materials for development projects.</p>
+                            <a href="https://ouits-res.netlify.app/" class="project-link" target="_blank" onclick="event.stopPropagation()">
+                                Visit Resource Hub
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15,3 21,3 21,9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                            </a>
+                        </div>
+
+                        <div class="project-card next" data-index="1" onclick="window.open('https://ouits-schedule.netlify.app/', '_blank')">
+                            <div class="project-icon">S</div>
+                            <h2 class="project-title">Schedule</h2>
+                            <p class="project-description">Advanced scheduling platform for managing events, appointments, and time-based activities with intuitive interfaces.</p>
+                            <a href="https://ouits-schedule.netlify.app/" class="project-link" target="_blank" onclick="event.stopPropagation()">
+                                Open Scheduler
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15,3 21,3 21,9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                            </a>
+                        </div>
+
+                        <div class="project-card hidden" data-index="2" onclick="window.open('https://ouits-analytics.netlify.app/', '_blank')">
+                            <div class="project-icon">A</div>
+                            <h2 class="project-title">Analytics</h2>
+                            <p class="project-description">Powerful analytics dashboard for tracking performance metrics, user behavior, and business intelligence insights.</p>
+                            <a href="https://ouits-analytics.netlify.app/" class="project-link" target="_blank" onclick="event.stopPropagation()">
+                                View Analytics
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15,3 21,3 21,9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                            </a>
+                        </div>
+
+                        <div class="project-card hidden" data-index="3" onclick="window.open('https://ouits-portfolio.netlify.app/', '_blank')">
+                            <div class="project-icon">P</div>
+                            <h2 class="project-title">Portfolio</h2>
+                            <p class="project-description">Showcase portfolio highlighting our best work, case studies, and creative projects with stunning visual presentations.</p>
+                            <a href="https://ouits-portfolio.netlify.app/" class="project-link" target="_blank" onclick="event.stopPropagation()">
+                                Explore Portfolio
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15,3 21,3 21,9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="stack-indicator" id="stackIndicator">
+                        <div class="stack-dot active" data-index="0"></div>
+                        <div class="stack-dot" data-index="1"></div>
+                        <div class="stack-dot" data-index="2"></div>
+                        <div class="stack-dot" data-index="3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="other-repos">
+                <h2 class="section-title">Other Repositories</h2>
+                <div class="repos-grid">
+                    <div class="repo-card" onclick="window.open('https://github.com/oU1TS/api-toolkit', '_blank')">
+                        <div class="repo-icon">T</div>
+                        <h3 class="repo-title">API Toolkit</h3>
+                        <p class="repo-description">Utility library for API development and testing</p>
+                    </div>
+
+                    <div class="repo-card" onclick="window.open('https://github.com/oU1TS/ui-components', '_blank')">
+                        <div class="repo-icon">U</div>
+                        <h3 class="repo-title">UI Components</h3>
+                        <p class="repo-description">Reusable React component library</p>
+                    </div>
+
+                    <div class="repo-card" onclick="window.open('https://github.com/oU1TS/data-viz', '_blank')">
+                        <div class="repo-icon">D</div>
+                        <h3 class="repo-title">Data Visualization</h3>
+                        <p class="repo-description">Interactive charts and graphs toolkit</p>
+                    </div>
+
+                    <div class="repo-card" onclick="window.open('https://github.com/oU1TS/mobile-app', '_blank')">
+                        <div class="repo-icon">M</div>
+                        <h3 class="repo-title">Mobile App</h3>
+                        <p class="repo-description">Cross-platform mobile application framework</p>
+                    </div>
+
+                    <div class="repo-card" onclick="window.open('https://github.com/oU1TS/machine-learning', '_blank')">
+                        <div class="repo-icon">ML</div>
+                        <h3 class="repo-title">Machine Learning</h3>
+                        <p class="repo-description">ML models and training pipelines</p>
+                    </div>
+
+                    <div class="repo-card" onclick="window.open('https://github.com/oU1TS/devops-scripts', '_blank')">
+                        <div class="repo-icon">⚙</div>
+                        <h3 class="repo-title">DevOps Scripts</h3>
+                        <p class="repo-description">Automation scripts for deployment and CI/CD</p>
+                    </div>
+
+                    <div class="repo-card" onclick="window.open('https://github.com/oU1TS/documentation', '_blank')">
+                        <div class="repo-icon">📖</div>
+                        <h3 class="repo-title">Documentation</h3>
+                        <p class="repo-description">Project documentation and guides</p>
+                    </div>
+
+                    <div class="repo-card" onclick="window.open('https://github.com/oU1TS/experiments', '_blank')">
+                        <div class="repo-icon">🧪</div>
+                        <h3 class="repo-title">Experiments</h3>
+                        <p class="repo-description">Experimental features and proof-of-concepts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create animated stars
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const starCount = 100;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Create floating elements
+        function createFloatingElements() {
+            const container = document.querySelector('.floating-elements');
+            const elementCount = 5;
+            
+            for (let i = 0; i < elementCount; i++) {
+                const circle = document.createElement('div');
+                circle.className = 'floating-circle';
+                const size = Math.random() * 100 + 50;
+                circle.style.width = size + 'px';
+                circle.style.height = size + 'px';
+                circle.style.left = Math.random() * 100 + '%';
+                circle.style.top = Math.random() * 100 + '%';
+                circle.style.animationDelay = Math.random() * 6 + 's';
+                circle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                container.appendChild(circle);
+            }
+        }
+
+        // Stacked card carousel functionality
+        let currentIndex = 0;
+        const cards = document.querySelectorAll('.project-card');
+        const dots = document.querySelectorAll('.stack-dot');
+        const totalCards = cards.length;
+        const projectsTrack = document.getElementById('projectsTrack');
+
+        function updateCardPositions() {
+            cards.forEach((card, index) => {
+                card.classList.remove('active', 'next', 'prev', 'hidden');
+                
+                // Determine the correct class based on the current index
+                if (index === currentIndex) {
+                    card.classList.add('active');
+                } else if (index === (currentIndex + 1) % totalCards) {
+                    card.classList.add('next');
+                } else if (index === (currentIndex - 1 + totalCards) % totalCards) {
+                    card.classList.add('prev');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            
+            // Update dots
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % totalCards;
+            updateCardPositions();
+        }
+
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + totalCards) % totalCards;
+            updateCardPositions();
+        }
+
+        function goToSlide(index) {
+            currentIndex = index;
+            updateCardPositions();
+        }
+
+        // Add hover effects to project cards
+        function addCardEffects() {
+            const allCards = document.querySelectorAll('.project-card, .repo-card');
+            
+            allCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    if (this.classList.contains('project-card') && this.classList.contains('active')) {
+                        // Strong hover for active card
+                        this.style.background = 'rgba(0, 0, 0, 0.6)'; 
+                        this.style.borderColor = 'rgba(0, 212, 255, 0.8)';
+                        this.style.boxShadow = '0 25px 50px rgba(0, 212, 255, 0.3)';
+                    } else if (this.classList.contains('repo-card')) {
+                        // Existing hover for other repos
+                        this.style.background = 'rgba(255, 255, 255, 0.05)';
+                    }
+                    // No hover effect for non-active project cards
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    if (this.classList.contains('project-card') && this.classList.contains('active')) {
+                        // Revert active card
+                        this.style.background = 'rgba(0, 0, 0, 0.4)';
+                        this.style.borderColor = '#00d4ff';
+                        this.style.boxShadow = '0 15px 40px rgba(0, 212, 255, 0.4)';
+                    } else if (this.classList.contains('repo-card')) {
+                        // Revert other repos
+                        this.style.background = 'rgba(255, 255, 255, 0.03)';
+                    }
+                    // No revert for non-active project cards as no effect was applied
+                });
+            });
+        }
+
+        // Initialize carousel
+        function initCarousel() {
+            // Click listener for projectsTrack
+            projectsTrack.addEventListener('click', function(e) {
+                // Prevent clicks on project links from triggering slide change
+                if (e.target.closest('.project-link')) {
+                    return;
+                }
+
+                const rect = projectsTrack.getBoundingClientRect();
+                const clickX = e.clientX - rect.left; // X position relative to the element
+                const elementWidth = rect.width;
+
+                const leftThreshold = elementWidth * 0.3; // 30% from the left
+                const rightThreshold = elementWidth * 0.7; // 30% from the right
+
+                if (clickX < leftThreshold) {
+                    prevSlide();
+                } else if (clickX > rightThreshold) {
+                    nextSlide();
+                }
+            });
+            
+            // Keyboard navigation (optional, but good for accessibility)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                }
+            });
+            
+            // Dot navigation
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => goToSlide(index));
+            });
+            
+            // Touch/swipe support for mobile
+            let startX = 0;
+            let endX = 0;
+            
+            projectsTrack.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+            });
+            
+            projectsTrack.addEventListener('touchend', (e) => {
+                endX = e.changedTouches[0].clientX;
+                handleSwipe();
+            });
+            
+            function handleSwipe() {
+                const threshold = 50;
+                const diff = startX - endX;
+                
+                if (Math.abs(diff) > threshold) {
+                    if (diff > 0) {
+                        nextSlide(); // Swipe left - next
+                    } else {
+                        prevSlide(); // Swipe right - prev
+                    }
+                }
+            }
+            
+            updateCardPositions();
+        }
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            createFloatingElements();
+            addCardEffects();
+            initCarousel();
+        });
+
+        // Add parallax effect to background elements
+        window.addEventListener('mousemove', function(e) {
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            const floatingElements = document.querySelectorAll('.floating-circle');
+            floatingElements.forEach((element, index) => {
+                const speed = (index + 1) * 0.02;
+                const x = mouseX * speed * 50;
+                const y = mouseY * speed * 50;
+                element.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
