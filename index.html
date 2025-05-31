@@ -48,7 +48,7 @@
             z-index: 2;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 20px; /* Default padding */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -61,6 +61,7 @@
             margin-bottom: 60px;
             opacity: 0;
             animation: fadeInUp 1s ease-out forwards;
+            width: 100%; /* Ensure header uses full available width */
         }
 
         .logo {
@@ -109,6 +110,8 @@
             margin-top: 40px;
             opacity: 0;
             animation: fadeInUp 1s ease-out 0.3s forwards;
+            /* Remove padding here or on .container if you want full screen */
+            padding: 0; /* Important: remove padding on projects-section as it will be full width */
         }
 
         .section-title {
@@ -125,18 +128,24 @@
         .primary-projects {
             position: relative;
             margin-bottom: 80px;
-            width: 100%; /* Ensure primary-projects takes full width */
+            width: 100vw; /* Make it viewport width */
+            left: 50%; /* Center it */
+            right: 50%;
+            margin-left: -50vw; /* Pull it left by half viewport width */
+            margin-right: -50vw; /* Pull it right by half viewport width */
+            padding: 0; /* Ensure no internal padding interferes */
+            overflow: hidden; /* Hide anything that goes beyond viewport width */
         }
 
         .projects-carousel {
             position: relative;
             padding: 0;
             height: 400px;
-            display: flex; /* Use flexbox to center content */
+            display: flex;
             align-items: center;
-            justify-content: center; /* Center the projects-track horizontally */
-            width: 100%;
-            overflow: hidden; /* Hide overflow from cards pushed far out */
+            justify-content: center;
+            width: 100%; /* Now takes 100% of the 100vw parent */
+            overflow: hidden;
         }
 
         .projects-track {
@@ -145,12 +154,15 @@
             height: 350px;
             perspective: 1000px;
             pointer-events: auto;
-            flex-shrink: 0; /* Prevent track from shrinking */
-            /* Removed max-width to allow more flexibility for card positioning */
-            /* Set a larger initial width to accommodate widely spaced cards,
-               but still relative to the active card's size */
-            width: calc(350px + 2 * 300px); /* Active card width + 2x (translateX amount for prev/next) */
-            /* Or use a fixed large width and center it with flexbox on .projects-carousel */
+            flex-shrink: 0;
+            /* This width will determine the *visual* space the cards appear in.
+               It should be large enough to contain the active card and the
+               translated prev/next cards. */
+            width: 100%; /* Let projects-track take 100% of projects-carousel width */
+            max-width: 900px; /* Set a reasonable max-width for the track itself */
+            display: flex; /* Use flex to center the card wrapper if needed */
+            justify-content: center; /* Center the cards wrapper */
+            align-items: center;
         }
         
         /* New styles for hover areas */
@@ -212,6 +224,10 @@
         .other-repos {
             opacity: 0;
             animation: fadeInUp 1s ease-out 0.6s forwards;
+            width: 100%; /* Ensure other repos uses full available width within container */
+            max-width: 1200px; /* Match container max-width */
+            margin: 0 auto; /* Center it */
+            padding: 0 20px; /* Apply container padding to this section */
         }
 
         .repos-grid {
@@ -291,14 +307,13 @@
         .project-card {
             position: absolute;
             top: 0;
-            /* Adjust left positioning to be relative to the track's center */
+            /* Use a consistent percentage for left to center within projects-track */
             left: 50%; 
-            transform-origin: center center; /* Ensure transformations are from the center */
-            transform: translateX(-50%) translateZ(0px) rotateY(0deg); /* Initial centered position */
-
+            transform-origin: center center;
+            
             width: 350px;
             height: 350px;
-            background: rgba(255, 255, 255, 0.05); /* Default background for non-active cards */
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
@@ -316,52 +331,42 @@
 
         .project-card.active {
             z-index: 4;
-            transform: translateX(-50%) translateZ(0px) rotateY(0deg); /* Explicitly centered */
+            /* Combine translateX(-50%) to center and then add Z/Y rotation */
+            transform: translateX(-50%) translateZ(0px) rotateY(0deg); 
             opacity: 1;
-            background: rgba(0, 0, 0, 0.4); /* Darker background for active card */
-            border: 2px solid #00d4ff; /* Stronger, contrasting border */
-            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4); /* More prominent shadow */
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #00d4ff;
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
         }
 
         .project-card.next {
             z-index: 3;
-            /* Increased translateX to push it far to the right, relative to its center */
-            transform: translateX(-50%) translateZ(-50px) translateX(300px) rotateY(-15deg); 
-            opacity: 0.7; /* Slightly less opaque for better distinction */
+            /* Push further out, relative to card's center */
+            transform: translateX(-50%) translateZ(-50px) translateX(400px) rotateY(-15deg); 
+            opacity: 0.7;
         }
 
         .project-card.prev {
             z-index: 2;
-            /* Increased translateX to push it far to the left, relative to its center */
-            transform: translateX(-50%) translateZ(-50px) translateX(-300px) rotateY(15deg); 
-            opacity: 0.7; /* Slightly less opaque for better distinction */
+            /* Push further out, relative to card's center */
+            transform: translateX(-50%) translateZ(-50px) translateX(-400px) rotateY(15deg); 
+            opacity: 0.7;
         }
 
         .project-card.hidden {
             z-index: 1;
-            /* Push hidden cards even further out and scale them down */
+            /* Even further out and more scaled down */
             transform: translateX(-50%) translateZ(-150px) scale(0.6);
-            opacity: 0.0; /* Fully hidden */
-            pointer-events: none; /* Prevent interaction with hidden cards */
+            opacity: 0.0;
+            pointer-events: none;
         }
 
         /* Hover effect for active card (still strong) */
         .project-card:hover.active {
             transform: translateX(-50%) translateZ(10px) rotateY(0deg) scale(1.02);
-            border-color: rgba(0, 212, 255, 0.8); /* Stronger border on active hover */
-            box-shadow: 0 25px 50px rgba(0, 212, 255, 0.3); /* Enhanced shadow on active hover */
+            border-color: rgba(0, 212, 255, 0.8);
+            box-shadow: 0 25px 50px rgba(0, 212, 255, 0.3);
         }
-
-        /* Removed hover for non-active project cards - no styles here */
-        .project-card:not(.active):hover {
-            /* Keep original styles for non-active cards on hover from JS,
-               or apply subtle ones if preferred, but not 'popping' */
-            /* If we want NO visual change except cursor for inactive cards on hover,
-               then these can be completely empty or removed.
-               The JavaScript `addCardEffects` function handles dynamic styles. */
-            cursor: pointer; /* Keep cursor pointer to indicate clickability */
-        }
-
 
         .project-card::before {
             content: '';
@@ -483,7 +488,6 @@
             }
             
             .projects-carousel {
-                padding: 0 20px; /* Re-introduce padding for smaller screens if cards are too wide */
                 height: 350px;
             }
             
@@ -496,6 +500,14 @@
                 width: 300px;
                 height: 300px;
                 padding: 25px;
+            }
+
+            /* Adjust mobile spacing for prev/next cards */
+            .project-card.next {
+                transform: translateX(-50%) translateZ(-50px) translateX(200px) rotateY(-15deg);
+            }
+            .project-card.prev {
+                transform: translateX(-50%) translateZ(-50px) translateX(-200px) rotateY(15deg);
             }
             
             .project-icon {
