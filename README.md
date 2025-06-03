@@ -17,7 +17,7 @@ To create a unified, accessible, and collaborative digital space where students 
 
 ---
 
-## 🧩 Key Repositories
+## 📁 Key Repositories
 
 Below are some of our core projects (in progress or planned):
 
@@ -45,7 +45,7 @@ Check out our Contribution Guidelines (to be added) for more details.
 
 ---
 
-## 🤝 Community
+## 💬 Community
 
 Join the discussion, get help, or suggest ideas:
 
