@@ -51,7 +51,7 @@ Join the discussion, get help, or suggest ideas:
 
 <!-- - 📢 [Discussions](https://github.com/oU1TS/discussions)
 - 📬 [Issues](https://github.com/oU1TS/issues) -->
-- 🎧 [Discord Server](https://discord.gg/bDqrF2epkN) 
+- 🎧 [Discord Server](https://discord.gg/BdmArz6FHY) 
 - 💬 [Telegram Group](https://t.me/s/oUITS_ORnU)
 - 🌐 [Facebook Group](https://facebook.com/groups/1074592960836263/)
 
